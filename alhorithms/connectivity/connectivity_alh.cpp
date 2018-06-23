@@ -21,6 +21,8 @@ private:
 	void quick_union(int, int);
 	void quick_union_weighted(int, int);
 	void init_array(int );
+	//TODO: add full path compression
+	//TODO: implement path compression by halving
 
 public:
 	void print_conect_list();
