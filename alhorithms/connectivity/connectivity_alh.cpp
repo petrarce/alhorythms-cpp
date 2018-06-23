@@ -19,7 +19,7 @@ private:
 	void (Connectivity::*connect_alhor)(int, int);
 	void quick_find(int, int);
 	void quick_union(int, int);
-	void quick_union_weighted(int, int){};
+	void quick_union_weighted(int, int);
 	void init_array(int );
 
 public:
@@ -116,6 +116,29 @@ void Connectivity::quick_union(int el1, int el2){
 	id_access_counter++;
 }
 
+void Connectivity::quick_union_weighted(int el1, int el2){
+
+	int i,j;
+	for (i = el1; i != array[i]; i = array[i], id_access_counter++);
+	for (j = el2; j != array[j]; j = array[j], id_access_counter++);
+
+	if (j == i){
+		id_access_counter++;
+		return;
+	}
+
+	if(veights[i] > veights[j]){
+		array[j] = array[i];
+		veights[i] += veights[j];
+	}
+	else{
+		array[i] = array[j];
+		veights[j] += veights[i];
+	}
+	id_access_counter+=2;
+}
+
+
 void Connectivity::print_conect_list(){
 	for (int i = 0; i < array.size(); i++)
 		cout << array[i];
@@ -126,8 +149,10 @@ void Connectivity::init_array(int size)
 {
 	int i;
 	array.resize(size);
+	veights.resize(size);
 	for (i = 0; i < array.size(); ++i){
 		array[i] = i;
+		veights[i] = 1;
 	}
 }
 /*DEBUGGING*/
