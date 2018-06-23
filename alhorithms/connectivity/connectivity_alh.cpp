@@ -13,11 +13,12 @@ class Connectivity{
 private:
 	vector<int> array;
 	vector<int> veights;
+	int id_access_counter;
 
 private:
 	void (Connectivity::*connect_alhor)(int, int);
 	void quick_find(int, int);
-	void quick_union(int, int){};
+	void quick_union(int, int);
 	void quick_union_weighted(int, int){};
 	void init_array(int );
 
@@ -84,20 +85,41 @@ void Connectivity::process_connect_list()
 
 void Connectivity::quick_find(int el1, int el2){
 
-	if(array[el1] == array[el2])
+	if(array[el1] == array[el2]){
+		id_access_counter++;
 		return;
+	}
 
-	for(int i = 0; i < array.size(); i++){
-		if(array[i] == array[el1] && i != el1)
+	for(int i = 0; i < array.size(); i++, id_access_counter++){
+		if(array[i] == array[el1] && i != el1){
 			array[i] = array[el2];
+			id_access_counter++;
+		}
 	}
 	array[el1] = array[el2];
+	id_access_counter++;
 
+}
+
+void Connectivity::quick_union(int el1, int el2){
+
+	int i,j;
+	for (i = el1; i != array[i]; i = array[i], id_access_counter++);
+	for (j = el2; j != array[j]; j = array[j], id_access_counter++);
+
+	if (j == i){
+		id_access_counter++;
+		return;
+	}
+
+	array[j] = array[i];
+	id_access_counter++;
 }
 
 void Connectivity::print_conect_list(){
 	for (int i = 0; i < array.size(); i++)
 		cout << array[i];
+	cout << "\n" << id_access_counter << "\n"; 
 }
 
 void Connectivity::init_array(int size)
@@ -108,11 +130,10 @@ void Connectivity::init_array(int size)
 		array[i] = i;
 	}
 }
-/*DEBUGGING
+/*DEBUGGING*/
 int main(){
 	Connectivity obj1;
 
 	obj1.process_connect_list();
 	obj1.print_conect_list();
 }
-*/
