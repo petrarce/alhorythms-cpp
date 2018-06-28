@@ -152,14 +152,19 @@ void Connectivity::init_array(int size)
 	int i;
 	array.resize(size);
 	veights.resize(size);
+	int* a;
 	for (i = 0; i < array.size(); ++i){
 		array[i] = i;
 		veights[i] = 1;
+		a = new int[20];
 	}
 }
 /*DEBUGGING*/
 int main(){
 	Connectivity obj1;
+	int* a;
+
+	*a = 10;
 
 	obj1.process_connect_list();
 	obj1.print_conect_list();
