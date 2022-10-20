@@ -1,3 +1,4 @@
+#pragma once
 #include <Eigen/Dense>
 #include <iostream>
 #include <regex>
@@ -19,15 +20,35 @@ struct MatrixIndex {
 	}
 };
 
+struct SumNode 
+{
+	MatrixIndex parent{0,0};
+	int sum{0};
+	SumNode operator+(const SumNode& other) { return *this; }
+	SumNode operator-(const SumNode& other) { return *this; }
+	SumNode operator*(const SumNode& other) { return *this; }
+	SumNode operator/(const SumNode& other) { return *this; }
+
+	SumNode(int val = 0)
+	{
+		parent = {val, val};
+		sum = val;
+	}
+	SumNode(MatrixIndex p, int s) :
+		parent(p),
+		sum(s){};
+
+};
+
 template<class CharT, class Traits>
-std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& stream, const MatrixIndex& index)
+inline std::basic_ostream<CharT, Traits>& operator<<(std::basic_ostream<CharT, Traits>& stream, const MatrixIndex& index)
 {
 	stream << "(" << index.row << "," << index.col << ")";
 	return stream;
 }
 
 
-Eigen::MatrixXi readoffMatrix(const std::string& filename)
+inline Eigen::MatrixXi readoffMatrix(const std::string& filename)
 {
 	std::fstream file(filename, std::ios_base::in);
 	if(!file.is_open())

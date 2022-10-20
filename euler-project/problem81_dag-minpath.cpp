@@ -2,26 +2,6 @@
 #include <Eigen/Dense>
 #include "problem81.h"
 
-struct SumNode 
-{
-	MatrixIndex parent{0,0};
-	int sum{0};
-	SumNode operator+(const SumNode& other) { return *this; }
-	SumNode operator-(const SumNode& other) { return *this; }
-	SumNode operator*(const SumNode& other) { return *this; }
-	SumNode operator/(const SumNode& other) { return *this; }
-
-	SumNode(int val = 0)
-	{
-		parent = {val, val};
-		sum = val;
-	}
-	SumNode(MatrixIndex p, int s) :
-		parent(p),
-		sum(s){};
-
-};
-
 template<> class Eigen::NumTraits<SumNode> {
 	public:
 	typedef int Real;
