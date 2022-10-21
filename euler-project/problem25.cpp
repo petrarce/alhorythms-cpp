@@ -4,89 +4,124 @@
 #include <set>
 #include <iostream>
 #include <numeric>
-#include <boost/multiprecision/cpp_int.hpp>
-#include <boost/math/special_functions/factorials.hpp>
-using namespace boost::multiprecision;
-uint128_t cnt(int i);
+#include <sstream>
+#include <cmath>
 
-uint128_t nFromK(int  n, int k)
-{
-	assert(n <= k);
-	if(n == 0 || n == k)
-		return 1;
-	uint128_t nominator = k;
-	uint128_t denominator = n;
-	for(int i = 1; i < n; i++)
+class LargeInt {
+public:
+	static constexpr int MAX_POW = 7;
+	LargeInt() = default;
+	LargeInt(const std::string& val)
 	{
-		assert( n - i > 0);
-		denominator *= (n - i);
-		nominator *= (k - i);
-
-		std::vector<uint128_t> factors = {2,3,5,7,11,13,17,19, 23, 29, 31, 37, 41, 43, 53};
-		for(auto f : factors)
+		int curVal = 0;
+		for(auto it = val.rbegin(); 
+			it != val.rend(); 
+			it++)
 		{
-			if((nominator%f) == 0 && (denominator%f) == 0)
-			{
-				nominator /= f;
-				denominator /= f;
-			}
+			int pow = std::distance(val.rbegin(), it) % (MAX_POW);
+			if(!pow)
+				mValue.push_front(0);
+			
+			mValue.front() += std::pow(10, pow) * (*it - '0');
 		}
-
 	}
-	assert(nominator > denominator);
-	assert((nominator%denominator) == 0);
-	return nominator / denominator;
-
-}
-
-uint128_t cnt(int i, int k)
-{
-	uint128_t m = cnt(i);
-	uint128_t sum = 0;
-	for(int j = 0; j < m; j++)
+	LargeInt& operator=(const LargeInt& val) = default;
+	LargeInt& operator=(const std::string& val)
 	{
-		uint128_t part = nFromK(k-1, j + k - 1);
-		assert(sum + part >= sum);
-		sum += nFromK(k-1, j + k - 1);
+		LargeInt lval(val);
+		*this = lval;
+		return *this;
 	}
-	return sum;
-}
-
-uint128_t cnt(int i)
-{
-	switch(i)
+	
+	LargeInt operator+(const LargeInt& val) const 
 	{
-	case 1:
-		return 1;
-	case 2:
-		return  1 + cnt(1);
-	case 5:
-		return 1 + + cnt(1) +  cnt(1,3) + cnt(1, 5) ;
-	case 10:
-		return 1 + cnt(5,2);
-	case 20:
-		return 1 + cnt(10,2);
-	case 50:
-		return 1 + cnt(10) + cnt(10,3) + cnt(10,5);
-	case 100:
-		return 1 + cnt(50, 2);
-	case 200:
-		return 1 + cnt(100, 2);
-	default:
-		assert(0 && "value not supported");
+		LargeInt newVal;
+		auto v1 = this->mValue;
+		auto v2 = val.mValue;
+		if(v1.size() > v2.size())
+			v2.insert(v2.begin(), v1.size() - v2.size(), 0);
+		else if(v2.size() > v1.size())
+			v1.insert(v1.begin(), v2.size() - v1.size(), 0);
+		
+		assert(v1.size() == v2.size());
+
+		int left = 0;
+
+		for(auto itv1 = v1.rbegin(), itv2 = v2.rbegin();
+			itv1 != v1.rend() && itv2 != v2.rend();
+			itv1++, itv2++)
+		{
+			int currentValue = (*itv1 + *itv2) % static_cast<int>(std::pow(10, MAX_POW));
+			newVal.mValue.push_front(currentValue + left);
+			left = ((*itv1 + *itv2) - currentValue) / std::pow(10, MAX_POW);
+		}
+		if(left)
+			newVal.mValue.push_front(left);
+		return newVal;
 	}
+	const std::list<int>& value() const
+	{
+		return mValue;
+	}
+private:
+	std::list<int> mValue;
+};
+
+namespace std 
+{
+
+template<class T, class R>
+std::basic_ostream<T, R>& operator<<(std::basic_ostream<T, R>& stream, const LargeInt& val)
+{
+	auto it = val.value().begin();
+	if(it != val.value().end())
+	{
+		stream << std::to_string(*it);
+		it++;
+	}
+	
+	for(; it != val.value().end(); it++)
+	{
+		auto stringVal = std::to_string(*it);
+		stream << std::string(std::max(static_cast<int>(LargeInt::MAX_POW - stringVal.length()), 0), '0') + stringVal;
+	}
+
+	return stream;
 }
 
-int task25(int val)
+}
+
+int findFirstFibonacheIndex(int size)
 {
-	std::cout << "coin combinations of " << val << ": " << cnt(val) << std::endl;
+	LargeInt fn_2("1");
+	LargeInt fn_1("1");
+	int index = 2;
+	std::string currentVal;
+	do
+	{
+		index++;
+		LargeInt fn = fn_1 + fn_2;
+		std::stringstream ss; ss << fn;
+		currentVal = ss.str();
+		fn_2 = fn_1;
+		fn_1 = fn;
+//		std::cout << fn << std::endl;
+	} while(currentVal.size() < size);
+	return index;
+}
+int main(int ac, char** av)
+{
+
+//	std::string initVal = std::string(av[1]);
+//	LargeInt val(initVal);
+//	std::stringstream ss;
+//	ss << val;
+//	std::cout << "\"" << ss.str() << "\"vs\"" << initVal << "\"" << std::endl;
+////	assert(ss.str() == initVal);
+//	std::cout << val + val << std::endl;
+	int maxDigits = std::stoi(av[1]);
+	auto v = findFirstFibonacheIndex(maxDigits);
+	std::cout << "index of first fibonache with " << maxDigits << " digits: " << v << std::endl;
 	return 0;
-}
-int main(int argc, char** argv)
-{
-	// if(argv[2][0] == '1')
-	// 	return combinator(argv);
-	// else
-	// 	return iterative(argv);
-	return task25(std::stoi(argv[1]));
+	
 }
