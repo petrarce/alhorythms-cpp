@@ -14,5 +14,5 @@ foreach(FILE IN LISTS FILES_LIST)
 	string(REPLACE ".cpp" "" FILE_NAME ${FILE})
 	add_executable(${FILE_NAME} ${FILE})
 	target_link_libraries(${FILE_NAME}
-		Eigen3::Eigen)
+		Eigen3::Eigen pthread tbb)
 endforeach()

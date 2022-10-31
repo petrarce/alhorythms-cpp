@@ -5,6 +5,7 @@
 #include <iostream>
 #include <set>
 #include <list>
+#include "custom_iostream.hpp"
 #include "prime.h"
 
 auto substitutionIndices(size_t val) -> std::vector<std::list<size_t>>
@@ -91,28 +92,7 @@ std::map<int, size_t> computePrimeFamilies(size_t bound)
 	}
 	return families;
 }
-namespace std
-{
 
-template<class T, class P, class T1, class T2>
-std::basic_ostream<T, P>& operator<<(std::basic_ostream<T, P>& stream, const std::map<T1, T2>& mapVal)
-{
-	for(auto [key, val] : mapVal )
-		stream << "[" << key << "," << val << "]" << std::endl;
-	return stream;
-}
-
-template<class T, class P, class Iteratable>
-std::basic_ostream<T, P>& operator<<(std::basic_ostream<T, P>& stream, const Iteratable& iteratable)
-{
-	stream << "[ ";
-	for(const auto& v : iteratable)
-		stream << v << ", ";
-	stream << " ]";
-	return stream;
-}
-
-}
 int main(int ac, char** av)
 {
 //	std::cout << substitutionIndices(std::stoul(av[1])) << std::endl;
