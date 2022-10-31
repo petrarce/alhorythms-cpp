@@ -59,30 +59,10 @@ std::map<T, T> primeDivisors(const T val)
 	return primeDivisorsList;
 }
 
-template<typename FloatingPointType, typename FactorType>
-std::vector<std::enable_if_t<std::is_floating_point_v<FactorType> == false, FactorType>>
-factorize(
-		const FloatingPointType& val,
-		const FactorType maxFactors = std::numeric_limits<FactorType>::max())
-{
-	auto currentVal = val;
-	std::vector<FactorType> factors;
-	factors.push_back(std::floor(currentVal));
-	for (int i = 0
-		 ; i < maxFactors &&
-		   std::abs(currentVal - std::floor(currentVal)) > 1e-6
-		 ; i++)
-	{
-		currentVal = 1 / ( currentVal - factors.back());
-		factors.push_back(std::floor(currentVal));
-	}
-
-	return factors;
-}
 
 template<typename T>
 std::tuple<std::enable_if_t<std::is_floating_point_v<T> != true, T>, T>
-defactorize(std::vector<T>& factors)
+defactorize(const std::vector<T>& factors)
 {
 
 	auto pn_plus_1 = [](T an, T Pn, T Qn)
@@ -98,4 +78,43 @@ defactorize(std::vector<T>& factors)
 		Pn = pn_plus_1(a, Pn, Qn_tmp);
 	}
 	return std::make_tuple(Pn, Qn);
+}
+
+template<typename FloatingPointType, typename FactorType>
+std::vector<std::enable_if_t<std::is_floating_point_v<FactorType> == false, FactorType>>
+factorize(
+		const FloatingPointType& val,
+		const std::optional<FactorType>& maxFactors = std::nullopt,
+		const std::optional<FloatingPointType>& threshold = 1e-6)
+{
+	
+	auto predicate = [&maxFactors, &threshold, &val](
+			const std::vector<FactorType>& factors,
+			int iteration) -> bool
+	{
+		if(threshold)
+		{
+			auto [nom, denom] = defactorize(factors);
+			FloatingPointType currentVal = static_cast<FloatingPointType>(nom) / denom;
+			return std::abs(currentVal - val) > *threshold;
+		}
+		else if (maxFactors)
+			return *maxFactors <= iteration;
+		else
+			throw std::runtime_error("Either iterations or threshold must be initialized");
+		return false;
+		
+	};
+	auto currentVal = val;
+	std::vector<FactorType> factors;
+	factors.push_back(std::floor(currentVal));
+	for (int i = 0
+		 ; predicate(factors, i)
+		 ; i++)
+	{
+		currentVal = 1 / ( currentVal - factors.back());
+		factors.push_back(std::floor(currentVal));
+	}
+
+	return factors;
 }
