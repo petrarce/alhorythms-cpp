@@ -62,7 +62,7 @@ std::map<int, size_t> computePrimeFamilies(size_t bound)
 	};
 	auto updateFamilies = [&families, &substitutes](size_t val)
 	{
-		if (testPrime(val))
+		if (is_prime(val))
 		{
 			auto indexLists = substitutionIndices(val);
 			for(const auto& indices : indexLists)
@@ -72,7 +72,7 @@ std::map<int, size_t> computePrimeFamilies(size_t bound)
 				int counter = 0;
 
 				for(auto s : subs)
-					if (testPrime(s))
+					if (is_prime(s))
 					{
 						counter++;
 						if(minPrime > s)

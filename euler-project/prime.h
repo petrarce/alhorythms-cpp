@@ -8,7 +8,10 @@
 #include <limits>
 #include <ranges>
 #include <iostream>
-bool testPrime(const size_t val)
+#include <algorithm>
+
+template<typename T>
+bool is_prime(const T val)
 {
 
 	if(val % 2 == 0 || val % 3 == 0)
@@ -16,6 +19,20 @@ bool testPrime(const size_t val)
 
 	for( int cv = 5; cv * cv <= val; cv += 6)
 		if (val % cv == 0 || val % (cv + 2) == 0)
+			return false;
+
+	return true;
+}
+
+template<class LegacyInputIterator>
+bool is_prime(const LegacyInputIterator begin, const LegacyInputIterator end)
+{
+	if(begin == end)
+		return false;
+
+
+	for(auto val = begin; val != end; val++)
+		if (!is_prime(*val))
 			return false;
 
 	return true;

@@ -6,7 +6,7 @@ using namespace std;
 
 size_t factorial(size_t n)
 {
-	volatile size_t sum = 1;
+	size_t sum = 1;
 	for(int i = 2; i <= n; i++)
 	{
 		assert(sum * i > sum);
