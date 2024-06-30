@@ -6,6 +6,8 @@ find_package(Boost REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package( absl REQUIRED)
 
+add_subdirectory(../libcore/ libcore)
+
 set(CMAKE_CXX_STANDARD 20 CACHE STRING "CXX standard")
 file(GLOB FILES_LIST
 	LIST_DIRECTORIES false
@@ -19,6 +21,9 @@ foreach(FILE IN LISTS FILES_LIST)
                 Eigen3::Eigen
                 pthread
                 tbb
+
+                libcore::math
+                inf::int
 
                 absl::algorithm
                 absl::base
